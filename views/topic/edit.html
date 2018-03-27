@@ -9,10 +9,10 @@
 <body>
   {{include '../_includes/header.html'}}
   <section class="container">
-  <div class="row">
-    <div class="col-md-5">
-      <form>
-        <div class="form-group">
+    <div class="row">
+      <div class="col-md-5">
+        <form id="topic_info">
+          <!--<div class="form-group">
           <label for="exampleInputEmail1">选择板块</label>
           <select class="form-control">
             <option>分享</option>
@@ -20,23 +20,41 @@
             <option>招聘</option>
             <option>客户端测试</option>
           </select>
-        </div>
-        <div class="form-group">
-          <label for="exampleInputEmail1">标题</label>
-          <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
-        </div>
-        <div class="form-group">
-          <label for="exampleInputPassword1">内容</label>
-          <textarea class="form-control" rows="3"></textarea>
-        </div>
-        <button type="submit" class="btn btn-default">Submit</button>
-      </form>
+        </div>-->
+          <div class="form-group">
+            <label for="exampleInputEmail1">标题</label>
+            <input type="text" name="title" class="form-control" id="exampleInputEmail1">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">内容</label>
+            <textarea class="form-control" rows="3" name="content"></textarea>
+          </div>
+          <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
   {{include '../_includes/footer.html'}}
   <script src="/node_modules/jquery/dist/jquery.js"></script>
   <script src="/node_modules/bootstrap/dist/js/bootstrap.js"></script>
+  <script>
+    $("#topic_info").on("submit", function (e) {
+      e.preventDefault();
+      var formData = $(this).serialize();
+      $.ajax({
+        url: "/topic/new",
+        type: "post",
+        data: formData,
+        dataType: "json",
+        success: function (ret) {
+          if(ret.code==200)
+          {
+            location.href="/";
+          }
+        }
+      })
+    })
+  </script>
 </body>
 
 </html>

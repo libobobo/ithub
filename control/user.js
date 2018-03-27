@@ -1,12 +1,5 @@
-const mysql = require('mysql');
 const moment = require('moment')
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '123456',
-    database: 'ithub'
-});
-
+const db = require("../modules/user");
 exports.showRegister = (ret, res) => {
     res.render("register.html");
 }
@@ -21,10 +14,8 @@ exports.register = (req, res) => {
     //    普通数据校验，例如数据有没有，格式是否正确
     //    业务数据校验，例如校验用户名是否被占用
     //    这里校验邮箱和昵称是否被占用
-
     // 校验邮箱是否被占用
-    connection.query(
-        'SELECT * FROM `users` WHERE `email`=?', [body.email],
+    db.finUserByEmail([body.email],
         (err, results) => {
             if (err) {
                 return res.send({
@@ -32,7 +23,7 @@ exports.register = (req, res) => {
                     message: err.message // 把错误对象中的错误消息发送给客户端
                 })
             }
-            if (results[0]) {
+            if (results) {
                 return res.send({
                     code: 1,
                     message: '邮箱已被占用了'
@@ -40,8 +31,7 @@ exports.register = (req, res) => {
             }
 
             // 校验昵称是否存在
-            connection.query(
-                'SELECT * FROM `users` WHERE `nickname`=?',
+            db.finUserByNickname(
                 [body.nickname],
                 (err, results) => {
                     if (err) {
@@ -51,7 +41,7 @@ exports.register = (req, res) => {
                         })
                     }
 
-                    if (results[0]) {
+                    if (results) {
                         return res.send({
                             code: 2,
                             message: '昵称已被占用'
@@ -68,9 +58,7 @@ exports.register = (req, res) => {
                     // format() 方法用来格式化输出
                     body.createdAt = moment().format('YYYY-MM-DD HH:mm:ss')
 
-                    const sqlStr = 'INSERT INTO `users` SET ?'
-
-                    connection.query(sqlStr, body, (err, results) => {
+                    db.create(body, (err, results) => {
                         if (err) {
                             // 服务器异常，通知客户端
                             return res.send({
@@ -104,27 +92,25 @@ exports.showLogin = (ret, res) => {
 }
 exports.login = (req, res) => {
     const body = req.body;
-    connection.query("select * from users where email=?",
-        [body.email], (err, results) => {
-            if (err) {
-                return res.send({ code: 500, message: "服务器错误" });
-            }
-
-            if (results[0] && results[0].password === body.password) {
-                req.session.user = results[0];
-                return res.send({ code: 1, message: "登陆成功" });
-            } else if (results[0].password !== body.password) {
-                return res.send({ code: 3, message: "密码不正确" });
-            } else {
-                return res.send({ code: 2, message: "用户不存在" });
-            }
+    db.finUserByEmail([body.email], (err, results) => {
+        if (err) {
+            return res.send({ code: 500, message: "服务器错误" });
         }
+        if (results && results.password === body.password) {
+            req.session.user = results;
+            return res.send({ code: 1, message: "登陆成功" });
+        } else if (results.password !== body.password) {
+            return res.send({ code: 3, message: "密码不正确" });
+        } else {
+            return res.send({ code: 2, message: "用户不存在" });
+        }
+    }
     );
 }
 
 exports.logout = (ret, res) => {
-   //清除登陆状态
-   delete ret.session.user
-   //a 连接默认get同步请求 可以使用重定向
-   res.redirect("/user/login");
+    //清除登陆状态
+    delete ret.session.user
+    //a 连接默认get同步请求 可以使用重定向
+    res.redirect("/user/login");
 }
