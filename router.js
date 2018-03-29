@@ -14,4 +14,8 @@ router.get("/user/register",user.showRegister)
 
 router.get("/topic/new",topic.showNew)
 router.post("/topic/new",topic.createTopic)
+router.get("/topic/:topicId",topic.show)
+router.get("/topic/:topicId/edit",topic.edit)
+router.get("/topic/:topicId/delete",topic.delete)
+router.post("/topic/:topicId/edit",topic.showEdit)
 module.exports = router;

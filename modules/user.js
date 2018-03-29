@@ -12,7 +12,7 @@ exports.finUserByEmail = (email, callback) => {
 exports.findAll = () => {
 
 }
-exports.finUserByNickname = (nickName, callback) => {
+exports.findUserByNickname = (nickName, callback) => {
     const sqlStr = 'SELECT * FROM `users` WHERE `nickname`=?'
     connection.query(sqlStr, [nickName], (err, results) => {
         if (err) {

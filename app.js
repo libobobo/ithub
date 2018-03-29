@@ -24,6 +24,12 @@ app.use(session({
     saveUninitialized: true,
     store: sessionStore//将session存储到数据库
 }))
+//配置全局session中间件
+app.use((req, res, next) => {
+    app.locals.sessionUser = req.session.user
+    next()//执行后续匹配中间件代码
+})
+
 //公开静态资源
 app.use('/public', express.static('./public/'))
 app.use('/node_modules', express.static('./node_modules/'))
@@ -33,6 +39,10 @@ app.use(bodyParser.json())//配置boayparser
 
 app.use(router);
 
+//配置404 中间件
+app.use((req, res, next) => {
+    res.render("404.html")
+})
 app.listen(3000, () => {
     console.log("running...");
 })

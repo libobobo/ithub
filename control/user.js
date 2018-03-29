@@ -31,7 +31,7 @@ exports.register = (req, res) => {
             }
 
             // 校验昵称是否存在
-            db.finUserByNickname(
+            db.findUserByNickname(
                 [body.nickname],
                 (err, results) => {
                     if (err) {
